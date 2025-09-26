@@ -331,6 +331,7 @@ def main(config: DictConfig):
     start_epoch = 0
     global_step = 0
     best_acc = 0.0
+    best_f1 = 0.0
     all_step_losses: list[Any] = []
 
     if wandb_available:
@@ -360,36 +361,7 @@ def main(config: DictConfig):
             wandb_available,
         )
 
-        # #  Log step losses for this epoch
-        # for step_loss in step_losses:
-        #     global_step += 1
-        #     all_step_losses.append(step_loss)
-        #     logger.debug(f"Step {global_step}: loss = {step_loss:.4f}")
-
-        #     # Evaluate periodically
-        #     if global_step % config..eval_steps == 0:
-        #         eval_loss, eval_acc = evaluate_subset(
-        #             model, eval_loader, criterion, device
-        #         )
-        #         logger.debug(
-        #             f"Step {global_step} - Eval Loss: {eval_loss:.4f}, Eval Acc: {eval_acc:.4f}"
-        #         )
-        #         # Log evaluation metrics to wandb
-        #         if wandb_available:
-        #             wandb.log(
-        #                 {
-        #                     "eval/step_loss": eval_loss,
-        #                     "eval/step_accuracy": eval_acc,
-        #                     "eval/step": global_step,
-        #                 }
-        #             )
-
-        # Evaluation at end of epoch (using subset of test data for efficiency)
-        # eval_loss, eval_acc = evaluate_subset(
-        #     model, eval_loader, criterion, config.train.device
-        # )
-
-        eval_loss, eval_acc, precision, f1 = evaluate_subset_v2(
+        eval_loss, eval_acc, eval_precision, eval_f1 = evaluate_subset_v2(
             model, eval_loader, criterion, config.train.device
         )
 
@@ -406,14 +378,16 @@ def main(config: DictConfig):
                     "train/epoch_accuracy": train_acc,
                     "eval/epoch_loss": eval_loss,
                     "eval/epoch_accuracy": eval_acc,
-                    "eval/precision": precision,
-                    "eval/f1_score": f1,
+                    "eval/precision": eval_precision,
+                    "eval/f1_score": eval_f1,
                 }
             )
 
         # Save checkpoint only if this is the best eval_acc so far in this run
-        if eval_acc > best_acc:
-            best_acc = eval_acc
+        # if eval_acc > best_acc:
+        #     best_acc = eval_acc
+        if eval_f1 > best_f1:
+            best_f1 = eval_f1
 
             # Remove any existing checkpoints
             cleanup_checkpoints(checkpoint_dir)
@@ -442,8 +416,6 @@ def main(config: DictConfig):
                 f"New best checkpoint saved: {checkpoint_filename} (eval_acc: {best_acc:.4f})"
             )
 
-            # Save best model
-            torch.save(model.state_dict(), os.path.join(checkpoint_dir, "best_model"))
             logger.info(f"New best model saved with accuracy: {best_acc:.4f}")
 
             # Log new best accuracy to wandb

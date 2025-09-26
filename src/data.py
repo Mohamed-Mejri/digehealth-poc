@@ -73,7 +73,6 @@ class DigeHealthDataset(Dataset):
         processed_data = []
         total_annotations = 0
         total_bowel_sound_frames = 0
-        sample_labels_shown = 0
 
         for wav_path, annotation_path in tqdm(
             zip(self.audio_paths, self.annotation_paths)

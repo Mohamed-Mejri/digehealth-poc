@@ -1,12 +1,10 @@
-import warnings
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss
 from transformers.modeling_outputs import TokenClassifierOutput
 
-from base.base_model import HubertForAudioFrameClassification
+from src.base.base_model import HubertForAudioFrameClassification
 
 
 class DigeHealthModel(nn.Module):
@@ -20,7 +18,7 @@ class DigeHealthModel(nn.Module):
         in_features = self.backbone.encoder.layers[
             -1
         ].final_layer_norm.normalized_shape[0]
-        self.classifer = nn.Linear(in_features, num_labels)
+        self.classifier = nn.Linear(in_features, num_labels)
         self.num_labels = num_labels
         self.config = base_model.config
 

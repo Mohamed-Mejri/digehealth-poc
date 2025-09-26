@@ -1,0 +1,27 @@
+wandb:
+  project: digehealth
+  run_name: 10_epochs
+
+data:
+  annotation_paths:
+    - /home/ubuntu/other/digehealth-poc/data/23M74M.txt # respect the same order here
+    - /home/ubuntu/other/digehealth-poc/data/AS_1.txt
+  audio_paths:
+    - /home/ubuntu/other/digehealth-poc/data/23M74M.wav # respect the same order here
+    - /home/ubuntu/other/digehealth-poc/data/AS_1.wav
+train:
+  hf_model_id: mharvill23/hubert-xlarge-bowel-sound-detector
+  num_labels: 4
+  batch_size: 32
+  learning_rate: 0.001
+  num_epochs: 10
+  num_workers: 4
+  train_split_size: 0.8
+  random_seed: 42
+  device: cuda
+
+checkpoint:
+  load_checkpoint: True
+  checkpoint_path: /home/ubuntu/other/digehealth-poc/outputs/checkpoints/2025-09-26_01-17-41/training_history.pt
+
+output_dir: /home/ubuntu/other/digehealth-poc/outputs

@@ -81,3 +81,14 @@ def cleanup_checkpoints(checkpoint_dir: str):
             print(f"Removed checkpoint: {checkpoint_file.name}")
         except Exception as e:
             print(f"Failed to remove checkpoint {checkpoint_file.name}: {e}")
+
+
+def load_model_from_checkpoint(
+    checkpoint_path: str, model: torch.nn.Module
+) -> torch.nn.Module:
+    """Load model weights from a checkpoint file"""
+    checkpoint = torch.load(
+        checkpoint_path, map_location=torch.device("cpu"), weights_only=False
+    )
+    model.load_state_dict(checkpoint["model_state_dict"])
+    return model
